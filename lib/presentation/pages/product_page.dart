@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../viewmodels/product_viewmodel.dart';
+import '../viewmodels/product state.dart';
 import '../../domain/entities/product.dart';
 
 class ProductPage extends StatelessWidget {
@@ -10,13 +11,23 @@ class ProductPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("Products")),
-      body: ValueListenableBuilder<List<Product>>(
-        valueListenable: viewModel.products,
-        builder: (context, products, _) {
+      body: ValueListenableBuilder<ProductState>(
+        valueListenable: viewModel.state,
+        builder: (context, state, _) {
+          if (state.isLoading) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+          if (state.error != null) {
+            return Center(
+              child: Text(state.error!),
+            );
+          }
           return ListView.builder(
-            itemCount: products.length,
+            itemCount: state.products.length,
             itemBuilder: (context, index) {
-              final product = products[index];
+              final product = state.products[index];
               return ListTile(
                 leading: Image.network(product.image),
                 title: Text(product.title),
