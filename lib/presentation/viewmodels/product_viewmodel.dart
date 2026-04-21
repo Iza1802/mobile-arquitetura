@@ -18,13 +18,45 @@ class ProductViewModel {
     }
   }
 
-  void toggleFavorite(int productId) {
-    final updatedProducts = state.value.products.map((p) {
-      if (p.id == productId) {
-        p.favorite = !p.favorite;
-      }
-      return p;
-    }).toList();
-    state.value = state.value.copyWith(products: updatedProducts);
+  Future<void> addProduct(Product product) async {
+    try {
+      final created = await repository.addProduct(product);
+      final newProduct = Product(
+        id: created.id != 0
+            ? created.id
+            : DateTime.now().millisecondsSinceEpoch,
+        title: product.title,
+        price: product.price,
+        image: product.image,
+        description: product.description,
+        category: product.category,
+      );
+      final updated = [...state.value.products, newProduct];
+      state.value = state.value.copyWith(products: updated);
+    } catch (e) {
+      state.value = state.value.copyWith(error: e.toString());
+    }
+  }
+
+  Future<void> updateProduct(Product product) async {
+    try {
+      await repository.updateProduct(product);
+      final updated = state.value.products
+          .map((p) => p.id == product.id ? product : p)
+          .toList();
+      state.value = state.value.copyWith(products: updated);
+    } catch (e) {
+      state.value = state.value.copyWith(error: e.toString());
+    }
+  }
+
+  Future<void> deleteProduct(int id) async {
+    try {
+      await repository.deleteProduct(id);
+      final updated = state.value.products.where((p) => p.id != id).toList();
+      state.value = state.value.copyWith(products: updated);
+    } catch (e) {
+      state.value = state.value.copyWith(error: e.toString());
+    }
   }
 }

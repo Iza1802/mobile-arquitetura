@@ -1,5 +1,6 @@
 import '../datasources/product_remote_datasource.dart';
 import '../datasources/product_cache_datasource.dart';
+import '../models/product_model.dart';
 import '../../domain/entities/product.dart';
 import '../../domain/repositories/product_repository.dart';
 import '../../core/errors/failure.dart';
@@ -45,5 +46,52 @@ class ProductRepositoryImpl implements ProductRepository {
       }
       throw Failure("Não foi possível carregar os produtos");
     }
+  }
+
+  @override
+  Future<Product> addProduct(Product product) async {
+    final model = ProductModel(
+      id: 0,
+      title: product.title,
+      price: product.price,
+      image: product.image,
+      description: product.description,
+      category: product.category,
+    );
+    final result = await remote.addProduct(model);
+    return Product(
+      id: result.id,
+      title: result.title,
+      price: result.price,
+      image: result.image,
+      description: result.description,
+      category: result.category,
+    );
+  }
+
+  @override
+  Future<Product> updateProduct(Product product) async {
+    final model = ProductModel(
+      id: product.id,
+      title: product.title,
+      price: product.price,
+      image: product.image,
+      description: product.description,
+      category: product.category,
+    );
+    final result = await remote.updateProduct(model);
+    return Product(
+      id: result.id,
+      title: result.title,
+      price: result.price,
+      image: result.image,
+      description: result.description,
+      category: result.category,
+    );
+  }
+
+  @override
+  Future<void> deleteProduct(int id) async {
+    await remote.deleteProduct(id);
   }
 }

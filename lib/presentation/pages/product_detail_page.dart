@@ -31,7 +31,10 @@ class ProductDetailPage extends StatelessWidget {
             const SizedBox(height: 12),
             Text('Categoria: ${product.category}'),
             const SizedBox(height: 8),
-            Text('R\$ ${product.price.toStringAsFixed(2)}'),
+            Text(
+              'R\$ ${product.price.toStringAsFixed(2)}',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
             const SizedBox(height: 16),
             Text(product.description),
           ],
