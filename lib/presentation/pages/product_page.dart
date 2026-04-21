@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../viewmodels/product_viewmodel.dart';
 import '../viewmodels/product state.dart';
 import '../../domain/entities/product.dart';
+import 'product_detail_page.dart';
 
 class ProductPage extends StatelessWidget {
   final ProductViewModel viewModel;
@@ -15,14 +16,10 @@ class ProductPage extends StatelessWidget {
         valueListenable: viewModel.state,
         builder: (context, state, _) {
           if (state.isLoading) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
+            return const Center(child: CircularProgressIndicator());
           }
           if (state.error != null) {
-            return Center(
-              child: Text(state.error!),
-            );
+            return Center(child: Text(state.error!));
           }
           return ListView.builder(
             itemCount: state.products.length,
@@ -32,6 +29,12 @@ class ProductPage extends StatelessWidget {
                 leading: Image.network(product.image),
                 title: Text(product.title),
                 subtitle: Text("\$${product.price}"),
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => ProductDetailPage(product: product),
+                  ),
+                ),
                 trailing: IconButton(
                   icon: Icon(
                     product.favorite ? Icons.star : Icons.star_border,

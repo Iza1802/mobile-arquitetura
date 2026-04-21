@@ -52,3 +52,32 @@ A arquitetura utiliza abstrações (interfaces) no Domain; logo, basta criar uma
 
     **8. Durante a implementação, quais foram as principais dificuldades encontradas?**
     Fazer o ValueNotifier atualizar a UI ao modificar um item já existente na lista. Foi necessário gerar uma nova lista com copyWith para forçar a detecção da mudança.
+
+## Atividade 08 - Questionário Expansão de Navegação em Aplicação Flutter com Fake API
+
+    **1. Qual era a estrutura do seu projeto antes da inclusão das novas telas?**
+    Havia apenas uma tela (ProductPage) chamada diretamente no main.dart. Não existia navegação, tela inicial ou de detalhes.
+
+    **2. Como ficou o fluxo da aplicação após a implementação da navegação?**
+    O fluxo passou a ser: main.dart → HomePage → ProductPage → ProductDetailPage, utilizando o Navigator.push() para empilhar as telas na ordem.
+
+    **3. Qual é o papel do Navigator.push() no seu projeto?**
+    Empilhar novas telas sobre as anteriores. Foi usado na HomePage para abrir a lista de produtos, e na ProductPage para abrir os detalhes do produto selecionado.
+
+    **4. Qual é o papel do Navigator.pop() no seu projeto?**
+    Desempilhar e voltar à tela anterior. No projeto, ele é acionado automaticamente pelo botão de voltar (seta) nativo da AppBar.
+
+    **5. Como os dados do produto selecionado foram enviados para a tela de detalhes?**
+    O objeto Product já carregado na lista foi passado diretamente como parâmetro no construtor da ProductDetailPage via MaterialPageRoute, reaproveitando os dados já em memória.
+
+    **6. Por que a tela de detalhes depende das informações da tela anterior?**
+    Porque ela é puramente de apresentação. Receber o Product pronto evita requisições redundantes à API e mantém a responsabilidade de buscar os dados restrita ao ProductViewModel.
+
+    **7. Quais foram as principais mudanças feitas no projeto original?**
+    Adição dos campos description e category na entidade e no model;
+    Atualização do repositório para mapear esses novos campos;
+    Criação da HomePage e da ProductDetailPage;
+    O main.dart passou a iniciar o app pela HomePage.
+
+    **8. Quais dificuldades você encontrou durante a adaptação do projeto para múltiplas telas?**
+    As principais foram: expandir a entidade e o model para incluir description e category (que não existiam antes e eram necessários para os detalhes) e reajustar a criação do ProductViewModel, movendo suas dependências do main.dart para a HomePage.

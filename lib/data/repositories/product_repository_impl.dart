@@ -16,23 +16,31 @@ class ProductRepositoryImpl implements ProductRepository {
       final models = await remote.getProducts();
       cache.save(models);
       return models
-          .map((m) => Product(
-                id: m.id,
-                title: m.title,
-                price: m.price,
-                image: m.image,
-              ))
+          .map(
+            (m) => Product(
+              id: m.id,
+              title: m.title,
+              price: m.price,
+              image: m.image,
+              description: m.description,
+              category: m.category,
+            ),
+          )
           .toList();
     } catch (e) {
       final cached = cache.get();
       if (cached != null) {
         return cached
-            .map((m) => Product(
-                  id: m.id,
-                  title: m.title,
-                  price: m.price,
-                  image: m.image,
-                ))
+            .map(
+              (m) => Product(
+                id: m.id,
+                title: m.title,
+                price: m.price,
+                image: m.image,
+                description: m.description,
+                category: m.category,
+              ),
+            )
             .toList();
       }
       throw Failure("Não foi possível carregar os produtos");
