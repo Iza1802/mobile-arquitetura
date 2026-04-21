@@ -32,6 +32,13 @@ class ProductPage extends StatelessWidget {
                 leading: Image.network(product.image),
                 title: Text(product.title),
                 subtitle: Text("\$${product.price}"),
+                trailing: IconButton(
+                  icon: Icon(
+                    product.favorite ? Icons.star : Icons.star_border,
+                    color: product.favorite ? Colors.amber : null,
+                  ),
+                  onPressed: () => viewModel.toggleFavorite(product.id),
+                ),
               );
             },
           );

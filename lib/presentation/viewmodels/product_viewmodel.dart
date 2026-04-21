@@ -7,6 +7,7 @@ class ProductViewModel {
   final ProductRepository repository;
   final ValueNotifier<ProductState> state = ValueNotifier(const ProductState());
   ProductViewModel(this.repository);
+
   Future<void> loadProducts() async {
     state.value = state.value.copyWith(isLoading: true);
     try {
@@ -15,5 +16,15 @@ class ProductViewModel {
     } catch (e) {
       state.value = state.value.copyWith(isLoading: false, error: e.toString());
     }
+  }
+
+  void toggleFavorite(int productId) {
+    final updatedProducts = state.value.products.map((p) {
+      if (p.id == productId) {
+        p.favorite = !p.favorite;
+      }
+      return p;
+    }).toList();
+    state.value = state.value.copyWith(products: updatedProducts);
   }
 }
