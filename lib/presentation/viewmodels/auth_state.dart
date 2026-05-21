@@ -1,0 +1,25 @@
+import '../../domain/entities/auth_user.dart';
+
+class AuthState {
+  final bool isLoading;
+  final String? error;
+  final AuthUser? user;
+
+  const AuthState({
+    this.isLoading = false,
+    this.error,
+    this.user,
+  });
+
+  AuthState copyWith({
+    bool? isLoading,
+    String? error,
+    AuthUser? user,
+  }) {
+    return AuthState(
+      isLoading: isLoading ?? this.isLoading,
+      error: error,
+      user: user ?? this.user,
+    );
+  }
+}

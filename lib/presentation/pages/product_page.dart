@@ -1,32 +1,102 @@
 import 'package:flutter/material.dart';
+
+import '../../core/session/session_controller.dart';
+import '../../domain/repositories/product_repository.dart';
 import '../viewmodels/product_viewmodel.dart';
 import '../viewmodels/product state.dart';
+import 'login_page.dart';
 import 'product_detail_page.dart';
 import 'product_form_page.dart';
+import 'profile_page.dart';
 
-class ProductPage extends StatelessWidget {
+class ProductPage extends StatefulWidget {
   final ProductViewModel viewModel;
-  const ProductPage({super.key, required this.viewModel});
+  final ProductRepository repository;
+
+  const ProductPage({
+    super.key,
+    required this.viewModel,
+    required this.repository,
+  });
+
+  @override
+  State<ProductPage> createState() => _ProductPageState();
+}
+
+class _ProductPageState extends State<ProductPage> {
+  @override
+  void initState() {
+    super.initState();
+    widget.viewModel.loadProducts();
+  }
+
+  void _logout() {
+    SessionController.instance.logout();
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (_) => const LoginPage()),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
+    final user = SessionController.instance.user;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Products"),
+        titleSpacing: 0,
+        title: Row(
+          children: [
+            if (user?.image.isNotEmpty == true)
+              CircleAvatar(
+                radius: 16,
+                backgroundColor: Colors.white24,
+                backgroundImage: NetworkImage(user!.image),
+                onBackgroundImageError: (_, _) {},
+              )
+            else
+              const CircleAvatar(
+                radius: 16,
+                child: Icon(Icons.person, size: 18),
+              ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                user != null
+                    ? 'Olá, ${user.firstName}'
+                    : 'Products',
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
+            tooltip: 'Novo produto',
             onPressed: () => Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (_) => ProductFormPage(viewModel: viewModel),
+                builder: (_) => ProductFormPage(viewModel: widget.viewModel),
               ),
             ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.person),
+            tooltip: 'Perfil',
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const ProfilePage()),
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.logout),
+            tooltip: 'Sair',
+            onPressed: _logout,
           ),
         ],
       ),
       body: ValueListenableBuilder<ProductState>(
-        valueListenable: viewModel.state,
+        valueListenable: widget.viewModel.state,
         builder: (context, state, _) {
           if (state.isLoading) {
             return const Center(child: CircularProgressIndicator());
@@ -39,13 +109,28 @@ class ProductPage extends StatelessWidget {
             itemBuilder: (context, index) {
               final product = state.products[index];
               return ListTile(
-                leading: Image.network(product.image),
+                leading: SizedBox(
+                  width: 48,
+                  height: 48,
+                  child: Image.network(
+                    product.thumbnail,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, _, _) =>
+                        const Icon(Icons.broken_image),
+                  ),
+                ),
                 title: Text(product.title),
-                subtitle: Text("\$${product.price}"),
+                subtitle: Text(
+                  'R\$ ${product.price.toStringAsFixed(2)} | '
+                  'Estoque: ${product.stock}',
+                ),
                 onTap: () => Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => ProductDetailPage(product: product),
+                    builder: (_) => ProductDetailPage(
+                      productId: product.id,
+                      repository: widget.repository,
+                    ),
                   ),
                 ),
                 trailing: Row(
@@ -57,7 +142,7 @@ class ProductPage extends StatelessWidget {
                         context,
                         MaterialPageRoute(
                           builder: (_) => ProductFormPage(
-                            viewModel: viewModel,
+                            viewModel: widget.viewModel,
                             product: product,
                           ),
                         ),
@@ -91,7 +176,7 @@ class ProductPage extends StatelessWidget {
                         );
 
                         if (shouldDelete == true) {
-                          await viewModel.deleteProduct(product.id);
+                          await widget.viewModel.deleteProduct(product.id);
                         }
                       },
                     ),
@@ -103,7 +188,7 @@ class ProductPage extends StatelessWidget {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: viewModel.loadProducts,
+        onPressed: widget.viewModel.loadProducts,
         child: const Icon(Icons.download),
       ),
     );

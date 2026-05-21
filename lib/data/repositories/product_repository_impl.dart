@@ -11,83 +11,63 @@ class ProductRepositoryImpl implements ProductRepository {
 
   ProductRepositoryImpl(this.remote, this.cache);
 
+  Product _toEntity(ProductModel m) => Product(
+    id: m.id,
+    title: m.title,
+    description: m.description,
+    category: m.category,
+    price: m.price,
+    rating: m.rating,
+    stock: m.stock,
+    thumbnail: m.thumbnail,
+  );
+
+  ProductModel _toModel(Product p) => ProductModel(
+    id: p.id,
+    title: p.title,
+    description: p.description,
+    category: p.category,
+    price: p.price,
+    rating: p.rating,
+    stock: p.stock,
+    thumbnail: p.thumbnail,
+  );
+
   @override
   Future<List<Product>> getProducts() async {
     try {
       final models = await remote.getProducts();
       cache.save(models);
-      return models
-          .map(
-            (m) => Product(
-              id: m.id,
-              title: m.title,
-              price: m.price,
-              image: m.image,
-              description: m.description,
-              category: m.category,
-            ),
-          )
-          .toList();
+      return models.map(_toEntity).toList();
     } catch (e) {
       final cached = cache.get();
       if (cached != null) {
-        return cached
-            .map(
-              (m) => Product(
-                id: m.id,
-                title: m.title,
-                price: m.price,
-                image: m.image,
-                description: m.description,
-                category: m.category,
-              ),
-            )
-            .toList();
+        return cached.map(_toEntity).toList();
       }
       throw Failure("Não foi possível carregar os produtos");
     }
   }
 
   @override
+  Future<Product> getProductById(int id) async {
+    try {
+      final model = await remote.getProductById(id);
+      return _toEntity(model);
+    } catch (e) {
+      throw Failure("Não foi possível carregar o produto");
+    }
+  }
+
+  @override
   Future<Product> addProduct(Product product) async {
-    final model = ProductModel(
-      id: 0,
-      title: product.title,
-      price: product.price,
-      image: product.image,
-      description: product.description,
-      category: product.category,
-    );
-    final result = await remote.addProduct(model);
-    return Product(
-      id: result.id,
-      title: result.title,
-      price: result.price,
-      image: result.image,
-      description: result.description,
-      category: result.category,
-    );
+    final result = await remote.addProduct(_toModel(product));
+    return _toEntity(result);
   }
 
   @override
   Future<Product> updateProduct(Product product) async {
-    final model = ProductModel(
-      id: product.id,
-      title: product.title,
-      price: product.price,
-      image: product.image,
-      description: product.description,
-      category: product.category,
-    );
-    final result = await remote.updateProduct(model);
-    return Product(
-      id: result.id,
-      title: result.title,
-      price: result.price,
-      image: result.image,
-      description: result.description,
-      category: result.category,
-    );
+    final result = await remote.updateProduct(_toModel(product));
+    return _toEntity(result);
   }
 
   @override

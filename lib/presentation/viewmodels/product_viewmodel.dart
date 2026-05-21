@@ -26,10 +26,12 @@ class ProductViewModel {
             ? created.id
             : DateTime.now().millisecondsSinceEpoch,
         title: product.title,
-        price: product.price,
-        image: product.image,
         description: product.description,
         category: product.category,
+        price: product.price,
+        rating: product.rating,
+        stock: product.stock,
+        thumbnail: product.thumbnail,
       );
       final updated = [...state.value.products, newProduct];
       state.value = state.value.copyWith(products: updated);
